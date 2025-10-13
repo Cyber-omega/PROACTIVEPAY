@@ -22,7 +22,9 @@ type BillWithAmount = Biller & { amount: number };
 
 export function BillPayment() {
   const { toast } = useToast();
-  const [bills, setBills] = useState<BillWithAmount[]>([]);
+  const [bills, setBills] = useState<BillWithAmount[]>(
+    mockBillers.map((biller) => ({ ...biller, amount: 0 }))
+  );
 
   useEffect(() => {
     setBills(mockBillers.map(biller => ({
@@ -67,10 +69,10 @@ export function BillPayment() {
                   </div>
                 </div>
                 <div className="text-right flex items-center gap-4">
-                  <p className="font-semibold">${biller.amount.toFixed(2)}</p>
+                  <p className="font-semibold">${biller.amount > 0 ? biller.amount.toFixed(2) : '...'}</p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm">Pay</Button>
+                      <Button size="sm" disabled={biller.amount === 0}>Pay</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
