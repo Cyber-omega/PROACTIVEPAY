@@ -23,8 +23,10 @@ type BillWithAmount = Biller & { amount: number };
 export function BillPayment() {
   const { toast } = useToast();
   const [bills, setBills] = useState<BillWithAmount[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     // Generate random amounts only on the client-side to prevent hydration mismatch
     setBills(mockBillers.map(biller => ({
       ...biller,
@@ -48,6 +50,8 @@ export function BillPayment() {
     });
   };
 
+  const billsToRender = isClient ? bills : mockBillers.map(b => ({ ...b, amount: 0 }));
+
   return (
     <Card>
       <CardHeader>
@@ -56,7 +60,7 @@ export function BillPayment() {
       </CardHeader>
       <CardContent>
         <ul className="space-y-2">
-          {(bills.length > 0 ? bills : mockBillers.map(b => ({ ...b, amount: 0 }))).map((biller) => (
+          {billsToRender.map((biller) => (
               <li key={biller.id} className="flex items-center justify-between rounded-lg border p-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
@@ -68,10 +72,10 @@ export function BillPayment() {
                   </div>
                 </div>
                 <div className="text-right flex items-center gap-4">
-                  <p className="font-semibold">${biller.amount > 0 ? biller.amount.toFixed(2) : '...'}</p>
+                  <p className="font-semibold">{biller.amount > 0 ? `$${biller.amount.toFixed(2)}` : '...'}</p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" disabled={biller.amount === 0}>Pay</Button>
+                      <Button size="sm" disabled={!isClient || biller.amount === 0}>Pay</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
