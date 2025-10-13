@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Send, Receipt, Bot } from "lucide-react";
+import { Send, Receipt, PiggyBank } from "lucide-react";
 
 const actions = [
   { href: "/dashboard/pay", icon: Send, label: "Send" },
   { href: "/dashboard/pay", icon: Receipt, label: "Pay Bill" },
-  { href: "/dashboard/coach", icon: Bot, label: "AI Coach" },
+  { href: "/dashboard/savings", icon: PiggyBank, label: "Savings" },
 ];
 
 export function QuickActions() {
