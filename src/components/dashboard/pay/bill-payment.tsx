@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { mockBillers, mockUser } from "@/lib/data";
 import type { Biller } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -18,8 +18,18 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+type BillWithAmount = Biller & { amount: number };
+
 export function BillPayment() {
   const { toast } = useToast();
+  const [bills, setBills] = useState<BillWithAmount[]>([]);
+
+  useEffect(() => {
+    setBills(mockBillers.map(biller => ({
+      ...biller,
+      amount: Math.random() * 100 + 20,
+    })));
+  }, []);
 
   const handlePayBill = (biller: Biller, amount: number) => {
     if (amount > mockUser.balance) {
@@ -45,9 +55,7 @@ export function BillPayment() {
       </CardHeader>
       <CardContent>
         <ul className="space-y-2">
-          {mockBillers.map((biller) => {
-            const randomAmount = Math.random() * 100 + 20;
-            return (
+          {bills.map((biller) => (
               <li key={biller.id} className="flex items-center justify-between rounded-lg border p-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
@@ -59,7 +67,7 @@ export function BillPayment() {
                   </div>
                 </div>
                 <div className="text-right flex items-center gap-4">
-                  <p className="font-semibold">${randomAmount.toFixed(2)}</p>
+                  <p className="font-semibold">${biller.amount.toFixed(2)}</p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button size="sm">Pay</Button>
@@ -68,12 +76,12 @@ export function BillPayment() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to pay ${randomAmount.toFixed(2)} to {biller.name}?
+                          Are you sure you want to pay ${biller.amount.toFixed(2)} to {biller.name}?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handlePayBill(biller, randomAmount)}>
+                        <AlertDialogAction onClick={() => handlePayBill(biller, biller.amount)}>
                           Confirm
                         </AlertDialogAction>
                       </AlertDialogFooter>
@@ -81,8 +89,7 @@ export function BillPayment() {
                   </AlertDialog>
                 </div>
               </li>
-            );
-          })}
+            ))}
         </ul>
       </CardContent>
       <CardFooter>
