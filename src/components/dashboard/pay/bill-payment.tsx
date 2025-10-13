@@ -26,10 +26,11 @@ export function BillPayment() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    // This effect runs only on the client, after the initial render.
     setIsClient(true);
-    // Generate random amounts only on the client-side to prevent hydration mismatch
     setBills(mockBillers.map(biller => ({
       ...biller,
+      // This now safely runs only on the client.
       amount: Math.random() * 100 + 20,
     })));
   }, []);
@@ -50,6 +51,8 @@ export function BillPayment() {
     });
   };
 
+  // During server-side rendering and the initial client-side render, 'isClient' will be false.
+  // We'll render a placeholder state.
   const billsToRender = isClient ? bills : mockBillers.map(b => ({ ...b, amount: 0 }));
 
   return (
@@ -72,10 +75,10 @@ export function BillPayment() {
                   </div>
                 </div>
                 <div className="text-right flex items-center gap-4">
-                  <p className="font-semibold">{biller.amount > 0 ? `$${biller.amount.toFixed(2)}` : '...'}</p>
+                  <p className="font-semibold">{isClient ? `$${biller.amount.toFixed(2)}` : '...'}</p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" disabled={!isClient || biller.amount === 0}>Pay</Button>
+                      <Button size="sm" disabled={!isClient}>Pay</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
