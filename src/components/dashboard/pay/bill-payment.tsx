@@ -22,11 +22,10 @@ type BillWithAmount = Biller & { amount: number };
 
 export function BillPayment() {
   const { toast } = useToast();
-  const [bills, setBills] = useState<BillWithAmount[]>(
-    mockBillers.map((biller) => ({ ...biller, amount: 0 }))
-  );
+  const [bills, setBills] = useState<BillWithAmount[]>([]);
 
   useEffect(() => {
+    // Generate random amounts only on the client-side to prevent hydration mismatch
     setBills(mockBillers.map(biller => ({
       ...biller,
       amount: Math.random() * 100 + 20,
@@ -57,7 +56,7 @@ export function BillPayment() {
       </CardHeader>
       <CardContent>
         <ul className="space-y-2">
-          {bills.map((biller) => (
+          {(bills.length > 0 ? bills : mockBillers.map(b => ({ ...b, amount: 0 }))).map((biller) => (
               <li key={biller.id} className="flex items-center justify-between rounded-lg border p-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
