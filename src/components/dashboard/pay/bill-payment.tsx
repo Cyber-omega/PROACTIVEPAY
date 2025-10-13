@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type BillWithAmount = Biller & { amount: number };
 
@@ -26,13 +27,13 @@ export function BillPayment() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // This effect runs only on the client, after the initial render.
-    setIsClient(true);
+    // This effect runs only on the client, after initial render.
+    // It safely generates random amounts without causing a hydration mismatch.
     setBills(mockBillers.map(biller => ({
       ...biller,
-      // This now safely runs only on the client.
       amount: Math.random() * 100 + 20,
     })));
+    setIsClient(true);
   }, []);
 
   const handlePayBill = (biller: Biller, amount: number) => {
@@ -51,10 +52,6 @@ export function BillPayment() {
     });
   };
 
-  // During server-side rendering and the initial client-side render, 'isClient' will be false.
-  // We'll render a placeholder state.
-  const billsToRender = isClient ? bills : mockBillers.map(b => ({ ...b, amount: 0 }));
-
   return (
     <Card>
       <CardHeader>
@@ -63,7 +60,24 @@ export function BillPayment() {
       </CardHeader>
       <CardContent>
         <ul className="space-y-2">
-          {billsToRender.map((biller) => (
+          {!isClient ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <li key={index} className="flex items-center justify-between rounded-lg border p-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-10 rounded-lg" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+                <div className="text-right flex items-center gap-4">
+                  <Skeleton className="h-5 w-12" />
+                  <Skeleton className="h-8 w-12" />
+                </div>
+              </li>
+            ))
+          ) : (
+            bills.map((biller) => (
               <li key={biller.id} className="flex items-center justify-between rounded-lg border p-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
@@ -75,10 +89,10 @@ export function BillPayment() {
                   </div>
                 </div>
                 <div className="text-right flex items-center gap-4">
-                  <p className="font-semibold">{isClient ? `$${biller.amount.toFixed(2)}` : '...'}</p>
+                  <p className="font-semibold">${biller.amount.toFixed(2)}</p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" disabled={!isClient}>Pay</Button>
+                      <Button size="sm">Pay</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
@@ -97,7 +111,8 @@ export function BillPayment() {
                   </AlertDialog>
                 </div>
               </li>
-            ))}
+            ))
+          )}
         </ul>
       </CardContent>
       <CardFooter>
