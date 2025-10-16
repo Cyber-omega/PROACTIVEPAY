@@ -64,12 +64,24 @@ export function LoginForm() {
 
     try {
       // 1. Check for WebAuthn support
+      if (
+        typeof PublicKeyCredential === 'undefined' ||
+        !PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable
+      ) {
+         toast({
+          variant: "destructive",
+          title: "Biometrics Not Supported",
+          description: "Your browser or device does not support Web Authentication.",
+        });
+        setIsBiometricLoading(false);
+        return;
+      }
       const isSupported = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
       if (!isSupported) {
         toast({
           variant: "destructive",
           title: "Biometrics Not Supported",
-          description: "Your browser or device does not support biometric authentication.",
+          description: "No user-verifying platform authenticator available.",
         });
         setIsBiometricLoading(false);
         return;
@@ -84,9 +96,11 @@ export function LoginForm() {
         publicKey: {
           challenge,
           rpId: window.location.hostname,
-          allowCredentials: [], // In a real app, you'd provide credential IDs
+          allowCredentials: [], // In a real app, you'd provide credential IDs from the server
           userVerification: "required",
+          timeout: 60000, // 60 seconds
         },
+        mediation: "conditional", // Use conditional UI to avoid iframe issues
       });
 
       // 4. In a real app, you would send `credential` to your server for verification.
@@ -98,7 +112,8 @@ export function LoginForm() {
         });
         router.push("/dashboard");
       } else {
-        throw new Error("Credential creation failed.");
+        // This can happen if the user cancels the prompt
+        throw new Error("Authentication was cancelled or failed.");
       }
 
     } catch (error) {
@@ -109,7 +124,10 @@ export function LoginForm() {
           description = "Authentication was cancelled.";
         } else if (error.name === 'AbortError') {
           description = 'Authentication timed out.';
-        } else {
+        } else if (error.message.includes('not enabled')) {
+            description = 'Biometrics blocked by browser policy. This can happen in sandboxed environments.';
+        }
+        else {
           description = "Could not sign in with biometrics. Please try again or use your password.";
         }
       }
