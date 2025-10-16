@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ProactivePayLogo } from "@/components/shared/logo";
 import { Bell } from "lucide-react";
+import { ThemeToggle } from "../theme-toggle";
 
 export function Header() {
   const userInitials = mockUser.name.charAt(0);
@@ -23,11 +24,12 @@ export function Header() {
         <Link href="/dashboard">
           <ProactivePayLogo className="h-8 w-auto" />
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-9 w-9">
             <Bell className="h-5 w-5" />
             <span className="sr-only">Notifications</span>
           </Button>
+          <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="h-9 w-9 cursor-pointer">
