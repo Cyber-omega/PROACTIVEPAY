@@ -24,16 +24,16 @@ type BillWithAmount = Biller & { amount: number };
 export function BillPayment() {
   const { toast } = useToast();
   const [bills, setBills] = useState<BillWithAmount[]>([]);
-  const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // This effect runs only on the client, after the initial server render.
     // It safely generates random amounts for the bills without causing a hydration mismatch.
-    setIsClient(true);
     setBills(mockBillers.map(biller => ({
       ...biller,
       amount: Math.random() * 100 + 20,
     })));
+    setIsLoading(false);
   }, []);
 
   const handlePayBill = (biller: Biller, amount: number) => {
@@ -52,7 +52,7 @@ export function BillPayment() {
     });
   };
 
-  if (!isClient) {
+  if (isLoading) {
     return (
         <Card>
             <CardHeader>
