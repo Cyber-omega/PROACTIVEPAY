@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { Fingerprint } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +27,6 @@ export function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isBiometricLoading, setIsBiometricLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,88 +55,6 @@ export function LoginForm() {
         setIsLoading(false);
       }
     }, 1000);
-  }
-
-  const handleBiometricSignIn = async () => {
-    setIsBiometricLoading(true);
-
-    try {
-      // 1. Check for WebAuthn support
-      if (
-        typeof PublicKeyCredential === 'undefined' ||
-        !PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable
-      ) {
-         toast({
-          variant: "destructive",
-          title: "Biometrics Not Supported",
-          description: "Your browser or device does not support Web Authentication.",
-        });
-        setIsBiometricLoading(false);
-        return;
-      }
-      const isSupported = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-      if (!isSupported) {
-        toast({
-          variant: "destructive",
-          title: "Biometrics Not Supported",
-          description: "No user-verifying platform authenticator available.",
-        });
-        setIsBiometricLoading(false);
-        return;
-      }
-      
-      // 2. Simulate a challenge from the server
-      const challenge = new Uint8Array(32);
-      window.crypto.getRandomValues(challenge);
-
-      // 3. Create the credential request
-      const credential = await navigator.credentials.get({
-        publicKey: {
-          challenge,
-          rpId: window.location.hostname,
-          allowCredentials: [], // In a real app, you'd provide credential IDs from the server
-          userVerification: "required",
-          timeout: 60000, // 60 seconds
-        },
-        mediation: "conditional", // Use conditional UI to avoid iframe issues
-      });
-
-      // 4. In a real app, you would send `credential` to your server for verification.
-      // Here, we'll just simulate success.
-      if (credential) {
-        toast({
-          title: "Biometric Login Successful",
-          description: "Welcome back!",
-        });
-        router.push("/dashboard");
-      } else {
-        // This can happen if the user cancels the prompt
-        throw new Error("Authentication was cancelled or failed.");
-      }
-
-    } catch (error) {
-      console.error("Biometric authentication error:", error);
-      let description = "An unknown error occurred.";
-      if (error instanceof Error) {
-        if (error.name === "NotAllowedError") {
-          description = "Authentication was cancelled.";
-        } else if (error.name === 'AbortError') {
-          description = 'Authentication timed out.';
-        } else if (error.message.includes('not enabled')) {
-            description = 'Biometrics blocked by browser policy. This can happen in sandboxed environments.';
-        }
-        else {
-          description = "Could not sign in with biometrics. Please try again or use your password.";
-        }
-      }
-      toast({
-        variant: "destructive",
-        title: "Authentication Failed",
-        description,
-      });
-    } finally {
-        setIsBiometricLoading(false);
-    }
   }
 
   return (
@@ -176,12 +92,8 @@ export function LoginForm() {
           )}
         />
         <div className="space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading || isBiometricLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign in"}
-            </Button>
-            <Button type="button" variant="outline" className="w-full" onClick={handleBiometricSignIn} disabled={isLoading || isBiometricLoading}>
-                <Fingerprint className="mr-2 h-4 w-4" />
-                {isBiometricLoading ? "Verifying..." : "Sign in with biometrics"}
             </Button>
         </div>
       </form>
