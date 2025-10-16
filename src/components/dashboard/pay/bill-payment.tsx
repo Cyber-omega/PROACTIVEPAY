@@ -27,13 +27,13 @@ export function BillPayment() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // This effect runs only on the client, after initial render.
-    // It safely generates random amounts without causing a hydration mismatch.
-    setIsClient(true);
+    // This effect runs only on the client, after the initial server render.
+    // It safely generates random amounts for the bills without causing a hydration mismatch.
     setBills(mockBillers.map(biller => ({
       ...biller,
       amount: Math.random() * 100 + 20,
     })));
+    setIsClient(true);
   }, []);
 
   const handlePayBill = (biller: Biller, amount: number) => {
