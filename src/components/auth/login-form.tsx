@@ -40,20 +40,11 @@ export function LoginForm() {
     setIsLoading(true);
     // Simulate API call
     setTimeout(() => {
-      if (values.email === "user@proactive.pay" && values.password === "password123") {
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!",
-        });
-        router.push("/dashboard");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Login Failed",
-          description: "Invalid credentials. Hint: user@proactive.pay / password123",
-        });
-        setIsLoading(false);
-      }
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      });
+      router.push("/dashboard");
     }, 1000);
   }
 
