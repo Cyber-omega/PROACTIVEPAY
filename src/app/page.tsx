@@ -1,5 +1,5 @@
-import { LoginPageClient } from "@/components/auth/login-page-client";
+import { redirect } from 'next/navigation';
 
-export default function LoginPage() {
-  return <LoginPageClient />;
+export default function HomePage() {
+  redirect('/dashboard');
 }
