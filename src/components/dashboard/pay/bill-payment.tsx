@@ -52,6 +52,39 @@ export function BillPayment() {
     });
   };
 
+  if (!isClient) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Pay a Bill</CardTitle>
+                <CardDescription>Select a biller to make a payment.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ul className="space-y-2">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                    <li key={index} className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="flex items-center gap-3">
+                        <Skeleton className="h-10 w-10 rounded-lg" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-3 w-16" />
+                        </div>
+                        </div>
+                        <div className="text-right flex items-center gap-4">
+                        <Skeleton className="h-5 w-12" />
+                        <Skeleton className="h-8 w-12" />
+                        </div>
+                    </li>
+                    ))}
+                </ul>
+            </CardContent>
+            <CardFooter>
+                <Button variant="outline" className="w-full">Add New Biller</Button>
+            </CardFooter>
+        </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -60,24 +93,7 @@ export function BillPayment() {
       </CardHeader>
       <CardContent>
         <ul className="space-y-2">
-          {!isClient ? (
-            Array.from({ length: 5 }).map((_, index) => (
-              <li key={index} className="flex items-center justify-between rounded-lg border p-3">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="h-10 w-10 rounded-lg" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-3 w-16" />
-                  </div>
-                </div>
-                <div className="text-right flex items-center gap-4">
-                  <Skeleton className="h-5 w-12" />
-                  <Skeleton className="h-8 w-12" />
-                </div>
-              </li>
-            ))
-          ) : (
-            bills.map((biller) => (
+            {bills.map((biller) => (
               <li key={biller.id} className="flex items-center justify-between rounded-lg border p-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
@@ -112,7 +128,7 @@ export function BillPayment() {
                 </div>
               </li>
             ))
-          )}
+          }
         </ul>
       </CardContent>
       <CardFooter>
